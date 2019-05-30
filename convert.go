@@ -26,12 +26,23 @@ import (
 	"go/build"
 	"go/parser"
 	"go/token"
+	"io"
+	"os"
 	"path/filepath"
 
 	"golang.org/x/tools/cover"
 )
 
 func ConvertProfiles(filenames ...string) error {
+	err := ConvertProfilesWithOutput(filenames, os.Stdout)
+	if err != nil {
+		return err
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConvertProfilesWithOutput(filenames []string, output io.Writer) error {
 	var ps Packages
 	for i := range filenames {
 		converter := converter{
@@ -55,7 +66,10 @@ func ConvertProfiles(filenames ...string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bytes))
+	_, err = output.Write(bytes)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
