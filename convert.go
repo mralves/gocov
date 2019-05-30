@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-package main
+package gocov
 
 import (
 	"fmt"
@@ -29,16 +29,13 @@ import (
 	"path/filepath"
 
 	"golang.org/x/tools/cover"
-
-	"github.com/axw/gocov"
-	"github.com/axw/gocov/gocovutil"
 )
 
-func convertProfiles(filenames ...string) error {
-	var ps gocovutil.Packages
+func ConvertProfiles(filenames ...string) error {
+	var ps Packages
 	for i := range filenames {
 		converter := converter{
-			packages: make(map[string]*gocov.Package),
+			packages: make(map[string]*Package),
 		}
 		profiles, err := cover.ParseProfiles(filenames[i])
 		if err != nil {
@@ -63,12 +60,12 @@ func convertProfiles(filenames ...string) error {
 }
 
 type converter struct {
-	packages map[string]*gocov.Package
+	packages map[string]*Package
 }
 
 // wrapper for gocov.Statement
 type statement struct {
-	*gocov.Statement
+	*Statement
 	*StmtExtent
 }
 
@@ -79,7 +76,7 @@ func (c *converter) convertProfile(p *cover.Profile) error {
 	}
 	pkg := c.packages[pkgpath]
 	if pkg == nil {
-		pkg = &gocov.Package{Name: pkgpath}
+		pkg = &Package{Name: pkgpath}
 		c.packages[pkgpath] = pkg
 	}
 	// Find function and statement extents; create corresponding
@@ -92,7 +89,7 @@ func (c *converter) convertProfile(p *cover.Profile) error {
 	}
 	var stmts []statement
 	for _, fe := range extents {
-		f := &gocov.Function{
+		f := &Function{
 			Name:  fe.name,
 			File:  file,
 			Start: fe.startOffset,
@@ -100,7 +97,7 @@ func (c *converter) convertProfile(p *cover.Profile) error {
 		}
 		for _, se := range fe.stmts {
 			s := statement{
-				Statement:  &gocov.Statement{Start: se.startOffset, End: se.endOffset},
+				Statement:  &Statement{Start: se.startOffset, End: se.endOffset},
 				StmtExtent: se,
 			}
 			f.Statements = append(f.Statements, s.Statement)

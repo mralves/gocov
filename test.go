@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-package main
+package gocov
 
 import (
 	"bytes"
@@ -30,7 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/axw/gocov/gocov/internal/testflag"
+	"github.com/axw/gocov/internal/testflag"
 )
 
 // resolvePackages returns a slice of resolved package names, given a slice of
@@ -56,7 +56,7 @@ func resolvePackages(pkgs []string) ([]string, error) {
 	return resolvedPkgs, nil
 }
 
-func runTests(args []string) error {
+func RunTests(args []string) error {
 	pkgs, testFlags := testflag.Split(args)
 	pkgs, err := resolvePackages(pkgs)
 	if err != nil {
@@ -100,5 +100,5 @@ func runTests(args []string) error {
 	}
 
 	// Merge the profiles.
-	return convertProfiles(files...)
+	return ConvertProfiles(files...)
 }

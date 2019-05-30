@@ -1,8 +1,7 @@
-package gocovutil
+package gocov
 
 import (
 	"encoding/json"
-	"github.com/axw/gocov"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -11,10 +10,10 @@ import (
 // Packages represents a set of gocov.Package structures.
 // The "AddPackage" method may be used to merge package
 // coverage results into the set.
-type Packages []*gocov.Package
+type Packages []*Package
 
 // AddPackage adds a package's coverage information to the
-func (ps *Packages) AddPackage(p *gocov.Package) {
+func (ps *Packages) AddPackage(p *Package) {
 	i := sort.Search(len(*ps), func(i int) bool {
 		return (*ps)[i].Name >= p.Name
 	})
@@ -22,7 +21,7 @@ func (ps *Packages) AddPackage(p *gocov.Package) {
 		(*ps)[i].Accumulate(p)
 	} else {
 		head := (*ps)[:i]
-		tail := append([]*gocov.Package{p}, (*ps)[i:]...)
+		tail := append([]*Package{p}, (*ps)[i:]...)
 		*ps = append(head, tail...)
 	}
 }
@@ -69,7 +68,7 @@ func ReadPackages(filenames []string) (ps Packages, err error) {
 		if err != nil {
 			return nil, err
 		}
-		result := &struct{ Packages []*gocov.Package }{}
+		result := &struct{ Packages []*Package }{}
 		err = json.Unmarshal(data, result)
 		if err != nil {
 			return nil, err

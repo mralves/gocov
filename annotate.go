@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-package main
+package gocov
 
 import (
 	"flag"
@@ -30,8 +30,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-
-	"github.com/axw/gocov"
 )
 
 const (
@@ -52,8 +50,8 @@ var (
 		"Differentiate coverage with color")
 )
 
-type packageList []*gocov.Package
-type functionList []*gocov.Function
+type packageList []*Package
+type functionList []*Function
 
 func (l packageList) Len() int {
 	return len(l)
@@ -84,7 +82,7 @@ type annotator struct {
 	files map[string]*token.File
 }
 
-func percentReached(fn *gocov.Function) float64 {
+func percentReached(fn *Function) float64 {
 	if len(fn.Statements) == 0 {
 		return 0
 	}
@@ -97,7 +95,7 @@ func percentReached(fn *gocov.Function) float64 {
 	return float64(reached) / float64(len(fn.Statements)) * 100
 }
 
-func annotateSource() (rc int) {
+func AnnotateSource() (rc int) {
 	annotateFlags.Parse(os.Args[2:])
 	if annotateFlags.NArg() == 0 {
 		fmt.Fprintf(os.Stderr, "missing coverage file\n")
@@ -165,7 +163,7 @@ func annotateSource() (rc int) {
 	return
 }
 
-func (a *annotator) printFunctionSource(fn *gocov.Function) error {
+func (a *annotator) printFunctionSource(fn *Function) error {
 	// Load the file for line information. Probably overkill, maybe
 	// just compute the lines from offsets in here.
 	setContent := false

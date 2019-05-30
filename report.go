@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-package main
+package gocov
 
 import (
 	"flag"
@@ -30,16 +30,14 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
-
-	"github.com/axw/gocov"
 )
 
 type report struct {
-	packages []*gocov.Package
+	packages []*Package
 }
 
 type reportFunction struct {
-	*gocov.Function
+	*Function
 	statementsReached int
 }
 
@@ -83,7 +81,7 @@ func newReport() (r *report) {
 }
 
 // AddPackage adds a package's coverage information to the report.
-func (r *report) addPackage(p *gocov.Package) {
+func (r *report) addPackage(p *Package) {
 	i := sort.Search(len(r.packages), func(i int) bool {
 		return r.packages[i].Name >= p.Name
 	})
@@ -91,7 +89,7 @@ func (r *report) addPackage(p *gocov.Package) {
 		r.packages[i].Accumulate(p)
 	} else {
 		head := r.packages[:i]
-		tail := append([]*gocov.Package{p}, r.packages[i:]...)
+		tail := append([]*Package{p}, r.packages[i:]...)
 		r.packages = append(head, tail...)
 	}
 }
@@ -103,7 +101,7 @@ func (r *report) clear() {
 
 // functionReports returns the packages functions as an array of
 // reportFunction objects with the statements reached calculated
-func functionReports(pkg *gocov.Package) reportFunctionList {
+func functionReports(pkg *Package) reportFunctionList {
 	functions := make(reportFunctionList, len(pkg.Functions))
 	for i, fn := range pkg.Functions {
 		reached := 0
@@ -152,7 +150,7 @@ func printReport(w io.Writer, r *report) {
 	r.printTotalCoverage(w)
 }
 
-func printPackage(w io.Writer, pkg *gocov.Package) {
+func printPackage(w io.Writer, pkg *Package) {
 	functions := functionReports(pkg)
 	sort.Sort(reverse{functions})
 
@@ -184,7 +182,7 @@ func printPackage(w io.Writer, pkg *gocov.Package) {
 		totalReached, totalStatements)
 }
 
-func reportCoverage() (rc int) {
+func ReportCoverage() (rc int) {
 	files := make([]*os.File, 0, 1)
 	if flag.NArg() > 1 {
 		for _, name := range flag.Args()[1:] {

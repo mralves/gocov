@@ -21,7 +21,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -41,19 +40,6 @@ func usage() {
 	os.Exit(2)
 }
 
-func marshalJson(packages []*gocov.Package) ([]byte, error) {
-	return json.Marshal(struct{ Packages []*gocov.Package }{packages})
-}
-
-func unmarshalJson(data []byte) (packages []*gocov.Package, err error) {
-	result := &struct{ Packages []*gocov.Package }{}
-	err = json.Unmarshal(data, result)
-	if err == nil {
-		packages = result.Packages
-	}
-	return
-}
-
 func main() {
 	flag.Usage = usage
 	flag.Parse()
@@ -67,16 +53,16 @@ func main() {
 				fmt.Fprintln(os.Stderr, "missing cover profile")
 				os.Exit(1)
 			}
-			if err := convertProfiles(flag.Args()[1:]...); err != nil {
+			if err := gocov.ConvertProfiles(flag.Args()[1:]...); err != nil {
 				fmt.Fprintln(os.Stderr, "error:", err)
 				os.Exit(1)
 			}
 		case "annotate":
-			os.Exit(annotateSource())
+			os.Exit(gocov.AnnotateSource())
 		case "report":
-			os.Exit(reportCoverage())
+			os.Exit(gocov.ReportCoverage())
 		case "test":
-			if err := runTests(flag.Args()[1:]); err != nil {
+			if err := gocov.RunTests(flag.Args()[1:]); err != nil {
 				fmt.Fprintln(os.Stderr, "error:", err)
 				os.Exit(1)
 			}
