@@ -2,7 +2,6 @@ package gocov
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -19,7 +18,10 @@ func (ps *Packages) AddPackage(p *Package) {
 		return (*ps)[i].Name >= p.Name
 	})
 	if i < len(*ps) && (*ps)[i].Name == p.Name {
-		fmt.Println((*ps)[i].Accumulate(p))
+		err := (*ps)[i].Accumulate(p)
+		if err != nil {
+			panic(err)
+		}
 	} else {
 		head := (*ps)[:i]
 		tail := append([]*Package{p}, (*ps)[i:]...)
