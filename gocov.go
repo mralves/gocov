@@ -68,13 +68,29 @@ func (p *Package) Accumulate(p2 *Package) error {
 	if p.Name != p2.Name {
 		return fmt.Errorf("Names do not match: %q != %q", p.Name, p2.Name)
 	}
-	if len(p.Functions) != len(p2.Functions) {
-		return fmt.Errorf("Function counts do not match: %d != %d", len(p.Functions), len(p2.Functions))
+	//if len(p.Functions) != len(p2.Functions) {
+	//	return fmt.Errorf("Function counts do not match: %d != %d", len(p.Functions), len(p2.Functions))
+	//}
+	var newFunctions []*Function
+	for _, f := range p.Functions {
+		target := findFunction(p2.Functions, f.Name)
+		if target != nil {
+			err := f.Accumulate(target)
+			if err != nil {
+				return err
+			}
+		} else {
+			newFunctions = append(newFunctions, target)
+		}
 	}
-	for i, f := range p.Functions {
-		err := f.Accumulate(p2.Functions[i])
-		if err != nil {
-			return err
+	p.Functions = append(p.Functions, newFunctions...)
+	return nil
+}
+
+func findFunction(functions []*Function, name string) *Function {
+	for _, target := range functions {
+		if target.Name == name {
+			return target
 		}
 	}
 	return nil
