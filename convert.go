@@ -29,6 +29,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"golang.org/x/tools/cover"
 )
@@ -42,7 +43,7 @@ func ConvertProfiles(filenames ...string) error {
 	return nil
 }
 
-func ConvertProfilesWithOutput(filenames []string, output io.Writer) error {
+func ConvertProfilesWithOutput(filenames []string, output io.Writer, excludePatterns ...regexp.Regexp) error {
 	var ps Packages
 	for i := range filenames {
 		converter := converter{
@@ -52,9 +53,19 @@ func ConvertProfilesWithOutput(filenames []string, output io.Writer) error {
 		if err != nil {
 			return err
 		}
+		exclude := func(s string) bool {
+			for _, p := range excludePatterns {
+				if p.MatchString(s) {
+					return true
+				}
+			}
+			return false
+		}
 		for _, p := range profiles {
-			if err := converter.convertProfile(p); err != nil {
-				return err
+			if !exclude(p.FileName) {
+				if err := converter.convertProfile(p); err != nil {
+					return err
+				}
 			}
 		}
 
