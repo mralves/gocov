@@ -43,7 +43,7 @@ func ConvertProfiles(filenames ...string) error {
 	return nil
 }
 
-func ConvertProfilesWithOutput(filenames []string, output io.Writer, excludePatterns ...regexp.Regexp) error {
+func ConvertProfilesWithOutput(filenames []string, output io.Writer, excludePatterns ...*regexp.Regexp) error {
 	var ps Packages
 	for i := range filenames {
 		converter := converter{
